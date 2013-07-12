@@ -50,7 +50,7 @@ var loadChecks = function(checksfile) {
 };
 var checkHtml = function(html, checksfile) {
     if(program.url) {
-	$ = html;
+	$ = cheerio.load(html);
     } else {
 	$ = cheerioHtmlFile(html);
     }
@@ -77,16 +77,16 @@ if(require.main == module) {
 	.option('-u  --url <url>', 'URL to index.html')
         .parse(process.argv);
     if(program.url) {
-	restler.get('http://gentle-lowlands-5362.herokuapp.com').on('complete', function(result) {    
+	restler.get(program.url).on('complete', function(result) {    
 	    var checkJson = checkHtml(result, program.checks);
+	    var outJson = JSON.stringify(checkJson, null, 4);
+	    console.log(outJson);
 	});
     } else {
 	var checkJson = checkHtml(program.file, program.checks);
-	//var outJson = JSON.stringify(checkJson, null, 4);
-	//console.log(outJson);
+	var outJson = JSON.stringify(checkJson, null, 4);
+	console.log(outJson);
     }
-    var outJson = JSON.stringify(checkJson, null, 4);
-    console.log(outJson);
 } else {
     exports.checkHtml = checkHtml;
 }
