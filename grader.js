@@ -48,9 +48,12 @@ var loadChecks = function(checksfile) {
     filecontent = fs.readFileSync(checksfile);
     return JSON.parse(filecontent);
 };
-
-var checkHtmlFile = function(html, checksfile) {
-    $ = html;
+var checkHtml = function(html, checksfile) {
+    if(program.url) {
+	$ = html;
+    } else {
+	$ = cheerioHtmlFile(html);
+    }
     console.log($);
     var checks = loadChecks(checksfile).sort();
     var out = {};
@@ -75,13 +78,15 @@ if(require.main == module) {
         .parse(process.argv);
     if(program.url) {
 	restler.get('http://gentle-lowlands-5362.herokuapp.com').on('complete', function(result) {    
-	    var checkJson = checkHtmlFile(result, program.checks);
+	    var checkJson = checkHtml(result, program.checks);
 	});
     } else {
-	var checkJson = checkHtmlFile(cheerioHtmlFile(program.file), program.checks);
-	var outJson = JSON.stringify(checkJson, null, 4);
-	console.log(outJson);
+	var checkJson = checkHtml(program.file, program.checks);
+	//var outJson = JSON.stringify(checkJson, null, 4);
+	//console.log(outJson);
     }
+    var outJson = JSON.stringify(checkJson, null, 4);
+    console.log(outJson);
 } else {
-    exports.checkHtmlFile = checkHtmlFile;
+    exports.checkHtml = checkHtml;
 }
